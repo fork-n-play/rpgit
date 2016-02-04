@@ -8,6 +8,7 @@
 
     "system": {
       "type": "object",
+      "title": "System settings",
       "properties": {
         "units": { "$ref": "#/definitions/units" },
         "rolls": { "$ref": "#/definitions/rolls" }
@@ -22,7 +23,7 @@
       "uniqueItems": true,
       "items": {
         "type": "object",
-        "title": "physical quantity",
+        "title": "Physical quantity",
         "properties": {
           "quantity": {
             "type": "string",
@@ -38,9 +39,11 @@
             "type": "string"
           },
           "formula": {
-            "description": "Formula or multiplier respect SI base units",
+            "description": "Formula or multiplier respect SI base units (m, kg, s, A, K, mol, cd)",
             "anyOf": [
-              { "type": "string" },
+              {
+                "type": "string"
+              },
               { "type": "number" }
             ]
           }
@@ -71,20 +74,17 @@
     },
 
     "rolls": {
-      "type": "array",
-      "title": "Rolls",
+      "type": "object",
       "description": "base dice rolls",
-      "uniqueItems": true,
-      "items": { "$ref": "#/definitions/roll" }
+      "additionalProperties": {
+        "$ref": "#/definitions/roll"
+      },
+      "minProperties": 1
     },
 
     "roll": {
       "type": "object",
       "properties": {
-        "title": {
-          "type": "string",
-          "description": "Title of the roll"
-        },
         "dices": {
           "title": "Dices",
           "description": "Number of dices in a roll",
@@ -112,18 +112,19 @@
           }
         }
       },
-      "required": [ "title", "dices", "sides" ],
+      "required": [ "dices", "sides" ],
       "default": {
-        "title": "3d6",
-        "dices": 3,
-        "sides": [
-          { "symbol": "1", "value": 1 },
-          { "symbol": "2", "value": 2 },
-          { "symbol": "3", "value": 3 },
-          { "symbol": "4", "value": 4 },
-          { "symbol": "5", "value": 5 },
-          { "symbol": "6", "value": 6 }
-        ]
+        "3d6": {
+          "dices": 3,
+          "sides": [
+            { "symbol": "1", "value": 1 },
+            { "symbol": "2", "value": 2 },
+            { "symbol": "3", "value": 3 },
+            { "symbol": "4", "value": 4 },
+            { "symbol": "5", "value": 5 },
+            { "symbol": "6", "value": 6 }
+          ]
+        }
       }
     },
 
@@ -132,10 +133,12 @@
       "description": "Maximum and minimum values of the range",
       "properties": {
         "maximum": {
-          "type": "number"
+          "type": "number",
+          "description": "value must be less than or equal"
         },
         "minimum": {
-          "type": "number"
+          "type": "number",
+          "description": "value must be greater than or equal"
         }
       },
       "maxProperties": 2,
@@ -144,22 +147,33 @@
 
     "cost": {
       "type": "object",
-      "description": "Cost is: value - base * increment",
+      "description": "Cost is: value - initial * increment",
       "properties": {
-        "base": {
-          "type": "number"
+        "initial": {
+          "type": "number",
+          "description": "initial value with null cost"
         },
-        "multiplier": {
-          "type": "number"
-        },
-        "range": {
-          "$ref": "#/definitions/range"
+        "costs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "increment": {
+                "type": "number",
+                "description": "cost increment for every unitary increase in this range"
+              },
+              "range": {
+                "$ref": "#/definitions/range",
+                "description": ""
+              }
+            }
+          }
         }
       },
-      "required": [ "base", "multiplier", "range" ],
+      "required": [ "base", "increment", "range" ],
       "default": {
         "base": 10,
-        "multiplier": 10,
+        "increment": 10,
         "range": {
           "maximum": 13,
           "minimum": 9
@@ -167,40 +181,66 @@
       }
     },
 
+    "gauge": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Type of the gauge",
+          "enum": [
+            "attribute",
+            "skill",
+            "trait",
+            "time"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the gauge"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the gauge"
+        },
+        "generation": {
+            "oneOf": [
+              { "$ref": "#/definitions/roll" },
+              { "$ref": "#/definitions/cost" }
+            ]
+        }
+      },
+      "required": [ "type", "title", "description", "generation" ],
+      "default": {
+        "strength": {
+          "type": "attribute",
+          "title": "strength",
+          "description": "Physical strength",
+          "generation": {
+            "title": "fate",
+            "dices": 1,
+            "sides": [
+              { "symbol": "+1", "value": 1 },
+              { "symbol": "0", "value": 0 },
+              { "symbol": "-1", "value": -1 }
+            ]
+          }
+        }
+      }
+    },
+
     "character": {
       "type": "object",
+      "title": "Procedural components of the imaginary entity called character",
       "properties": {
         "gauge": {
           "type": "object",
-          "properties": {
-            "type": {
-              "type": "string",
-              "description": "Type of the gauge",
-              "enum": [
-                "attribute",
-                "skill",
-                "trait",
-                "time"
-              ]
-            },
-            "title": {
-              "type": "string",
-              "description": "Title of the gauge"
-            },
-            "description": {
-              "type": "string",
-              "description": "Description of the gauge"
-            },
-            "generation": {
-                "oneOf": [
-                  { "$ref": "#/definitions/roll" },
-                  { "$ref": "#/definitions/cost" }
-                ]
-            }
-          },
-          "required": [ "type", "title", "description", "generation" ]
+          "additionalProperties": {
+            "$ref": "#/definitions/gauge"
+          }
         }
-      }
+      },
+      "minProperties": 1,
+      "required": [ "gauge" ]
     }
   },
 
