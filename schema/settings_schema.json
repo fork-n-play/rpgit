@@ -76,8 +76,10 @@
     "rolls": {
       "type": "object",
       "description": "base dice rolls",
-      "additionalProperties": {
-        "$ref": "#/definitions/roll"
+      "patternProperties": {
+        ".*": {
+          "$ref": "#/definitions/roll"
+        }
       },
       "minProperties": 1
     },
@@ -230,12 +232,13 @@
 
     "character": {
       "type": "object",
-      "title": "Procedural components of the imaginary entity called character",
+      "title": "Character",
+      "description": "Procedural components of the imaginary entity called character",
       "properties": {
         "gauge": {
           "type": "object",
-          "additionalProperties": {
-            "$ref": "#/definitions/gauge"
+          "patternProperties": {
+            ".*": { "$ref": "#/definitions/gauge" }
           }
         }
       },
