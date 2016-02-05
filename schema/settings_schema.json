@@ -76,12 +76,26 @@
     "rolls": {
       "type": "object",
       "description": "base dice rolls",
+      "additionalProperties": true,
       "patternProperties": {
         ".*": {
           "$ref": "#/definitions/roll"
         }
       },
-      "minProperties": 1
+      "minProperties": 1,
+      "default": {
+        "3d6": {
+          "dices": 3,
+          "sides": [
+            { "symbol": "1", "value": 1 },
+            { "symbol": "2", "value": 2 },
+            { "symbol": "3", "value": 3 },
+            { "symbol": "4", "value": 4 },
+            { "symbol": "5", "value": 5 },
+            { "symbol": "6", "value": 6 }
+          ]
+        }
+      }
     },
 
     "roll": {
@@ -114,20 +128,7 @@
           }
         }
       },
-      "required": [ "dices", "sides" ],
-      "default": {
-        "3d6": {
-          "dices": 3,
-          "sides": [
-            { "symbol": "1", "value": 1 },
-            { "symbol": "2", "value": 2 },
-            { "symbol": "3", "value": 3 },
-            { "symbol": "4", "value": 4 },
-            { "symbol": "5", "value": 5 },
-            { "symbol": "6", "value": 6 }
-          ]
-        }
-      }
+      "required": [ "dices", "sides" ]
     },
 
     "range": {
@@ -211,23 +212,7 @@
             ]
         }
       },
-      "required": [ "type", "title", "description", "generation" ],
-      "default": {
-        "strength": {
-          "type": "attribute",
-          "title": "strength",
-          "description": "Physical strength",
-          "generation": {
-            "title": "fate",
-            "dices": 1,
-            "sides": [
-              { "symbol": "+1", "value": 1 },
-              { "symbol": "0", "value": 0 },
-              { "symbol": "-1", "value": -1 }
-            ]
-          }
-        }
-      }
+      "required": [ "type", "title", "description", "generation" ]
     },
 
     "character": {
@@ -237,8 +222,25 @@
       "properties": {
         "gauge": {
           "type": "object",
+          "additionalProperties": true,
           "patternProperties": {
             ".*": { "$ref": "#/definitions/gauge" }
+          },
+          "default": {
+            "strength": {
+              "type": "attribute",
+              "title": "strength",
+              "description": "Physical strength",
+              "generation": {
+                "title": "fate",
+                "dices": 1,
+                "sides": [
+                  { "symbol": "+1", "value": 1 },
+                  { "symbol": "0", "value": 0 },
+                  { "symbol": "-1", "value": -1 }
+                ]
+              }
+            }
           }
         }
       },
